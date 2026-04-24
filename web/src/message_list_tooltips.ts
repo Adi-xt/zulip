@@ -394,10 +394,20 @@ export function initialize(): void {
     // large image caused the tooltip to go out of its container and made it look
     // like it was floating in the app. Since the tooltip was not that useful for
     // this case, we chose to remove it instead.
-    message_list_tooltip(".media-image-element:not(.preview_content *)", {
+    message_list_tooltip(".media-image-element", {
         // Add a short delay so the user can mouseover several inline images without
         // tooltips showing and hiding rapidly
         delay: [300, 20],
+        appendTo(reference) {
+            // This is the "Magic Fix":
+            // If the image is inside the preview, attach the tooltip to the preview.
+            // This ensures it scrolls WITH the preview.
+            const preview_content = reference.closest(".preview_content");
+            if (preview_content) {
+                return preview_content;
+            }
+            return document.body;
+        },
         onShow(instance) {
             // Some message images do not include a title, such as YouTube
             // video previews, so we fall back to displaying the href value
